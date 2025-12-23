@@ -50,6 +50,7 @@ type ComponentProps = {
   label?: string;
   href?: string;
   variant?: string;
+  size?: string;
   className?: string;
 };
 
@@ -95,6 +96,42 @@ const textareaDefaultClassName = [
 ].join(" ");
 const avatarDefaultClassName = "relative flex size-10 shrink-0 overflow-hidden rounded-full border border-border";
 const tabsListDefaultClassName = "inline-flex items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground";
+
+const presetColorGroups = [
+  {
+    label: "พื้นหลัง (bg-*)",
+    options: [
+      { label: "White", value: "bg-white" },
+      { label: "Muted", value: "bg-muted" },
+      { label: "Yellow 50", value: "bg-yellow-50" },
+      { label: "Sky 50", value: "bg-sky-50" },
+      { label: "Slate 100", value: "bg-slate-100" },
+      { label: "Yellow 400", value: "bg-yellow-400" },
+    ],
+  },
+  {
+    label: "ตัวอักษร (text-*)",
+    options: [
+      { label: "Foreground", value: "text-foreground" },
+      { label: "Muted", value: "text-muted-foreground" },
+      { label: "Slate 900", value: "text-slate-900" },
+      { label: "Yellow 700", value: "text-yellow-700" },
+      { label: "Sky 600", value: "text-sky-600" },
+      { label: "White", value: "text-white" },
+    ],
+  },
+  {
+    label: "เส้นขอบ (border-*)",
+    options: [
+      { label: "Border default", value: "border" },
+      { label: "Border Slate 200", value: "border border-slate-200" },
+      { label: "Border Slate 300", value: "border border-slate-300" },
+      { label: "Border Yellow 300", value: "border border-yellow-300" },
+      { label: "Dotted Slate", value: "border border-dashed border-slate-200" },
+      { label: "Transparent", value: "border border-transparent" },
+    ],
+  },
+];
 
 const supportedComponents: SupportedComponent[] = [
   {
@@ -181,6 +218,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     defaults: {
       label: "Action",
       variant: "default",
+      size: "default",
       className: buttonVariants({ variant: "default", size: "default" }),
     },
   },
@@ -191,6 +229,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     icon: CalendarDays,
     defaults: {
       label: "New",
+      variant: "default",
       className: badgeVariants({ variant: "default" }),
     },
   },
@@ -236,6 +275,20 @@ const presetSchemas: Record<string, BuilderSchema> = {
 
 function cloneSchema(schema: BuilderSchema): BuilderSchema {
   return JSON.parse(JSON.stringify(schema));
+}
+
+function mergeClassNames(base: string | undefined, additions: string) {
+  const existing = base?.split(/\s+/).filter(Boolean) ?? [];
+  const incoming = additions.split(/\s+/).filter(Boolean);
+  const merged = [...existing];
+
+  incoming.forEach((utility) => {
+    if (!merged.includes(utility)) {
+      merged.push(utility);
+    }
+  });
+
+  return merged.join(" ").trim();
 }
 
 function createInstance(type: ComponentType): ComponentInstance {
@@ -308,14 +361,41 @@ function CardPreview({ component }: { component: ComponentInstance }) {
 
 function ButtonPreview({ component }: { component: ComponentInstance }) {
   return (
-    <Button variant={component.props.variant as "default" | "outline" | "secondary"}>
+    <Button
+      variant={component.props.variant as
+        | "default"
+        | "outline"
+        | "secondary"
+        | "destructive"
+        | "ghost"
+        | "link"}
+      size={(component.props as { size?: string }).size as
+        | "default"
+        | "sm"
+        | "lg"
+        | "icon"
+        | "icon-sm"
+        | "icon-lg"}
+      className={component.props.className}
+    >
       {component.props.label ?? "Button"}
     </Button>
   );
 }
 
 function BadgePreview({ component }: { component: ComponentInstance }) {
-  return <Badge className={cn(component.props.className)}>{component.props.label ?? "Badge"}</Badge>;
+  return (
+    <Badge
+      variant={(component.props as { variant?: string }).variant as
+        | "default"
+        | "secondary"
+        | "outline"
+        | "destructive"}
+      className={cn(component.props.className)}
+    >
+      {component.props.label ?? "Badge"}
+    </Badge>
+  );
 }
 
 function NavigationPreview({ component }: { component: ComponentInstance }) {
@@ -433,10 +513,54 @@ function PropertiesPanel({
       )}
 
       {component.type === "button" && (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Variant</Label>
+            <Select
+              value={component.props.variant ?? "default"}
+              onValueChange={(value) => onChange({ ...component.props, variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="เลือก variant" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="secondary">Secondary</SelectItem>
+                <SelectItem value="outline">Outline</SelectItem>
+                <SelectItem value="destructive">Destructive</SelectItem>
+                <SelectItem value="ghost">Ghost</SelectItem>
+                <SelectItem value="link">Link</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Size</Label>
+            <Select
+              value={(component.props as { size?: string }).size ?? "default"}
+              onValueChange={(value) => onChange({ ...component.props, size: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="เลือก size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="sm">Small</SelectItem>
+                <SelectItem value="lg">Large</SelectItem>
+                <SelectItem value="icon">Icon</SelectItem>
+                <SelectItem value="icon-sm">Icon Small</SelectItem>
+                <SelectItem value="icon-lg">Icon Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
+      {component.type === "badge" && (
         <div className="space-y-2">
           <Label>Variant</Label>
           <Select
-            value={component.props.variant ?? "default"}
+            value={(component.props as { variant?: string }).variant ?? "default"}
             onValueChange={(value) => onChange({ ...component.props, variant: value })}
           >
             <SelectTrigger>
@@ -446,6 +570,7 @@ function PropertiesPanel({
               <SelectItem value="default">Default</SelectItem>
               <SelectItem value="secondary">Secondary</SelectItem>
               <SelectItem value="outline">Outline</SelectItem>
+              <SelectItem value="destructive">Destructive</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -462,6 +587,45 @@ function PropertiesPanel({
         <p className="text-xs text-muted-foreground">
           className จะถูก merge ด้วย cn(...) กับ style ของ component
         </p>
+      </div>
+
+      <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Tailwind color presets
+        </div>
+
+        {presetColorGroups.map((group) => (
+          <div key={group.label} className="space-y-2">
+            <Label>{group.label}</Label>
+            <Select
+              onValueChange={(value) =>
+                onChange({
+                  ...component.props,
+                  className: mergeClassNames(component.props.className, value),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="เลือกสี" />
+              </SelectTrigger>
+              <SelectContent>
+                {group.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <span className="flex items-center justify-between gap-2">
+                      <span>{option.label}</span>
+                      <span
+                        className={cn(
+                          "h-5 w-10 rounded border border-border text-[10px]",
+                          option.value,
+                        )}
+                      />
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
       </div>
     </div>
   );
