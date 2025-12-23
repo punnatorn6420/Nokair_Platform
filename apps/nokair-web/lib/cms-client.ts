@@ -1,5 +1,5 @@
 // lib/cms-client.ts
-import { defaultSiteLayout, type SiteLayoutConfig } from "./site-layout";
+import { defaultSiteLayout, normalizeLayout, type SiteLayoutConfig } from "./site-layout";
 
 const SITE_SLUG = "nokair";
 
@@ -23,8 +23,8 @@ export async function getSiteLayout(): Promise<SiteLayoutConfig> {
       return defaultSiteLayout;
     }
 
-    const data = (await res.json()) as SiteLayoutConfig;
-    return data;
+    const data = await res.json();
+    return normalizeLayout(data);
   } catch (err) {
     console.error("Error fetching layout from Website Backend:", err);
     return defaultSiteLayout;

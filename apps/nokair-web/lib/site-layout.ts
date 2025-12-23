@@ -29,10 +29,15 @@ export type FooterConfig = {
   copyright: string;
 };
 
+export type SectionBlock = {
+  id: string;
+  type: string;
+  variant?: string;
+  content: Record<string, unknown>;
+};
+
 export type HomepageConfig = {
-  heroTitle: string;
-  heroSubtitle: string;
-  heroImage?: string;
+  sections: SectionBlock[];
 };
 
 export type SiteLayoutConfig = {
@@ -41,8 +46,41 @@ export type SiteLayoutConfig = {
   homepage: HomepageConfig;
 };
 
-// ตอนนี้ใช้ config แบบ hard-coded ไปก่อน
-// อนาคตค่อยเปลี่ยนเป็น fetch จาก CMS API
+const defaultHeroSection: SectionBlock = {
+  id: "hero",
+  type: "hero",
+  content: {
+    title: "บินสบายไปกับนกแอร์",
+    subtitle: "จองง่าย ราคาคุ้มค่า พร้อมบริการด้วยรอยยิ้ม",
+    image: "/images/home-hero.png",
+    actions: [
+      { label: "จองเที่ยวบิน", href: "/booking" },
+      { label: "ดูโปรโมชั่น", href: "/promo" },
+    ],
+  },
+};
+
+const defaultPromoSection: SectionBlock = {
+  id: "featured-promos",
+  type: "promo_grid",
+  content: {
+    title: "โปรโมชั่นแนะนำ",
+    description: "ดีลพิเศษคัดสรรสำหรับคุณ",
+    items: [
+      {
+        title: "บินเชียงใหม่ ราคาเริ่มต้น 999 บาท",
+        description: "เที่ยวเชียงใหม่ฤดูหนาว ราคาสุดคุ้ม",
+        badge: "ยอดนิยม",
+      },
+      {
+        title: "ส่วนลด 15% สำหรับสมาชิก",
+        description: "ใช้โค้ด NOKAIR15 ในการจองครั้งแรก",
+        badge: "สมาชิก",
+      },
+    ],
+  },
+};
+
 export const defaultSiteLayout: SiteLayoutConfig = {
   header: {
     logoSrc: "/images/nokair-logo.svg",
@@ -77,8 +115,43 @@ export const defaultSiteLayout: SiteLayoutConfig = {
     copyright: "© 2025 Nok Air. All rights reserved.",
   },
   homepage: {
-    heroTitle: "บินสบายไปกับนกแอร์",
-    heroSubtitle: "จองง่าย ราคาคุ้มค่า พร้อมบริการด้วยรอยยิ้ม",
-    heroImage: "/images/home-hero.png",
+    sections: [defaultHeroSection, defaultPromoSection],
   },
 };
+
+export function normalizeLayout(data: unknown): SiteLayoutConfig {
+  if (!data || typeof data !== "object") return defaultSiteLayout;
+
+  const source = data as Partial<SiteLayoutConfig> &
+    Partial<{ homepage: { heroTitle?: string; heroSubtitle?: string; heroImage?: string; sections?: SectionBlock[] } }>;
+
+  const header = source.header ?? defaultSiteLayout.header;
+  const footer = source.footer ?? defaultSiteLayout.footer;
+
+  const sections = Array.isArray(source.homepage?.sections)
+    ? source.homepage?.sections
+    : [];
+
+  if (!sections.length && source.homepage) {
+    const { heroTitle, heroSubtitle, heroImage } = source.homepage;
+    if (heroTitle || heroSubtitle || heroImage) {
+      sections.push({
+        ...defaultHeroSection,
+        content: {
+          ...defaultHeroSection.content,
+          title: heroTitle ?? defaultHeroSection.content.title,
+          subtitle: heroSubtitle ?? defaultHeroSection.content.subtitle,
+          image: heroImage ?? defaultHeroSection.content.image,
+        },
+      });
+    }
+  }
+
+  return {
+    header,
+    footer,
+    homepage: {
+      sections: sections.length ? sections : defaultSiteLayout.homepage.sections,
+    },
+  };
+}
