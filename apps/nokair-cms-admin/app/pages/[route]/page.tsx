@@ -29,8 +29,8 @@ export default function PublishedRoutePage({
   const [schema, setSchema] = useState<PageSchema>(() =>
     ensureSchemaRoute(
       cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
-      route
-    )
+      route,
+    ),
   );
   const [loadedRoute, setLoadedRoute] = useState<string | null>(null);
 
@@ -44,7 +44,7 @@ export default function PublishedRoutePage({
         if (!mounted) return;
         const fallback = ensureSchemaRoute(
           cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
-          route
+          route,
         );
 
         const normalized = storedSchema
