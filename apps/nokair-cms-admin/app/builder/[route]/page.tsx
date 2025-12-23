@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -72,6 +72,83 @@ type ComponentLibraryItem = {
   defaults: ComponentProps;
 };
 
+type SupportedComponent = {
+  name: string;
+  description: string;
+  defaultProps?: Record<string, string>;
+  defaultClassName: string;
+};
+
+const cardDefaultClassName = "rounded-xl border bg-card text-card-foreground shadow";
+const navigationDefaultClassName = "relative z-10 flex justify-center";
+const inputDefaultClassName = [
+  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30",
+  "border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none",
+  "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+].join(" ");
+const textareaDefaultClassName = [
+  "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]",
+  "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+].join(" ");
+const avatarDefaultClassName = "relative flex size-10 shrink-0 overflow-hidden rounded-full border border-border";
+const tabsListDefaultClassName = "inline-flex items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground";
+
+const supportedComponents: SupportedComponent[] = [
+  {
+    name: "Button",
+    description: "ปุ่มกดแอคชันมาตรฐานพร้อม variant และ size",
+    defaultProps: {
+      variant: "default",
+      size: "default",
+    },
+    defaultClassName: buttonVariants({ variant: "default", size: "default" }),
+  },
+  {
+    name: "Badge",
+    description: "ป้ายกำกับหรือแสดงสถานะ",
+    defaultProps: {
+      variant: "default",
+    },
+    defaultClassName: badgeVariants({ variant: "default" }),
+  },
+  {
+    name: "Card",
+    description: "คอนเทนเนอร์สำหรับเนื้อหาและข้อมูล",
+    defaultClassName: cardDefaultClassName,
+  },
+  {
+    name: "Input",
+    description: "ฟิลด์กรอกข้อมูลเดี่ยว",
+    defaultProps: {
+      type: "text",
+    },
+    defaultClassName: inputDefaultClassName,
+  },
+  {
+    name: "Textarea",
+    description: "ฟิลด์กรอกข้อความหลายบรรทัด",
+    defaultClassName: textareaDefaultClassName,
+  },
+  {
+    name: "Avatar",
+    description: "แสดงรูปโปรไฟล์หรือ fallback",
+    defaultClassName: avatarDefaultClassName,
+  },
+  {
+    name: "Navigation Menu",
+    description: "เมนูนำทางแนวนอนแบบกลุ่ม",
+    defaultClassName: navigationDefaultClassName,
+  },
+  {
+    name: "Tabs List",
+    description: "ส่วนควบคุมสำหรับเลือก tab ต่าง ๆ",
+    defaultClassName: tabsListDefaultClassName,
+  },
+];
+
 const componentLibrary: ComponentLibraryItem[] = [
   {
     type: "hero",
@@ -93,7 +170,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     defaults: {
       title: "การ์ดใหม่",
       description: "เนื้อหารายละเอียด หรือคำอธิบายสั้น ๆ",
-      className: "",
+      className: cardDefaultClassName,
     },
   },
   {
@@ -104,7 +181,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     defaults: {
       label: "Action",
       variant: "default",
-      className: "",
+      className: buttonVariants({ variant: "default", size: "default" }),
     },
   },
   {
@@ -114,7 +191,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     icon: CalendarDays,
     defaults: {
       label: "New",
-      className: "",
+      className: badgeVariants({ variant: "default" }),
     },
   },
   {
@@ -125,7 +202,7 @@ const componentLibrary: ComponentLibraryItem[] = [
     defaults: {
       label: "เมนูหลัก",
       href: "#",
-      className: "",
+      className: navigationDefaultClassName,
     },
   },
 ];
@@ -506,6 +583,53 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                   component={selectedComponent}
                   onChange={(props) => selectedComponent && updateComponent(selectedComponent.id, props)}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="border-dashed">
+              <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-4">
+                <ComponentIcon className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <CardTitle className="text-base">Supported UI Components</CardTitle>
+                  <CardDescription>default props และ className จาก design system</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {supportedComponents.map((component) => (
+                  <div
+                    key={component.name}
+                    className="space-y-2 rounded-lg border bg-white p-3 text-sm shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="font-medium text-foreground">{component.name}</div>
+                        <p className="text-xs text-muted-foreground">{component.description}</p>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full text-[10px]">
+                        className
+                      </Badge>
+                    </div>
+
+                    {component.defaultProps && (
+                      <div className="flex flex-wrap gap-2 text-[11px]">
+                        {Object.entries(component.defaultProps).map(([key, value]) => (
+                          <Badge key={key} variant="outline" className="rounded-full">
+                            {key}: {value}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="space-y-1 rounded-md bg-muted/40 p-3 font-mono text-xs">
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        className pattern
+                      </div>
+                      <div className="break-all text-foreground">
+                        {`className={cn("${component.defaultClassName}", className)}`}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </div>
