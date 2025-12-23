@@ -58,7 +58,9 @@ async function saveToApi(route: string, schema: PageSchema) {
   return response;
 }
 
-export async function loadPageSchema(route: string): Promise<PageSchema | null> {
+export async function loadPageSchema(
+  route: string
+): Promise<PageSchema | null> {
   try {
     const apiSchema = await loadFromApi(route);
     if (apiSchema) return apiSchema;

@@ -126,7 +126,13 @@ export function normalizeLayout(data: unknown): SiteLayoutConfig {
   if (!data || typeof data !== "object") return defaultSiteLayout;
 
   const source = data as Partial<SiteLayoutConfig> &
-    Partial<{ homepage: Partial<HomepageConfig> & { heroTitle?: string; heroSubtitle?: string; heroImage?: string } }>;
+    Partial<{
+      homepage: Partial<HomepageConfig> & {
+        heroTitle?: string;
+        heroSubtitle?: string;
+        heroImage?: string;
+      };
+    }>;
 
   const header = source.header ?? defaultSiteLayout.header;
   const footer = source.footer ?? defaultSiteLayout.footer;
@@ -155,7 +161,9 @@ export function normalizeLayout(data: unknown): SiteLayoutConfig {
     header,
     footer,
     homepage: {
-      sections: sections.length ? sections : defaultSiteLayout.homepage.sections,
+      sections: sections.length
+        ? sections
+        : defaultSiteLayout.homepage.sections,
     },
   };
 }

@@ -65,7 +65,8 @@ type SupportedComponent = {
   defaultClassName: string;
 };
 
-const cardDefaultClassName = "rounded-xl border bg-card text-card-foreground shadow";
+const cardDefaultClassName =
+  "rounded-xl border bg-card text-card-foreground shadow";
 const navigationDefaultClassName = "relative z-10 flex justify-center";
 const inputDefaultClassName = [
   "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30",
@@ -79,8 +80,10 @@ const textareaDefaultClassName = [
   "dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]",
   "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
 ].join(" ");
-const avatarDefaultClassName = "relative flex size-10 shrink-0 overflow-hidden rounded-full border border-border";
-const tabsListDefaultClassName = "inline-flex items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground";
+const avatarDefaultClassName =
+  "relative flex size-10 shrink-0 overflow-hidden rounded-full border border-border";
+const tabsListDefaultClassName =
+  "inline-flex items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground";
 
 const presetColorGroups = [
   {
@@ -254,7 +257,10 @@ function createInstance(type: ComponentType): ComponentInstance {
   };
 }
 
-const pageBackgroundPresets: { label: string; options: { label: string; value: TailwindClassName }[] }[] = [
+const pageBackgroundPresets: {
+  label: string;
+  options: { label: string; value: TailwindClassName }[];
+}[] = [
   {
     label: "Tailwind colors",
     options: [
@@ -267,10 +273,22 @@ const pageBackgroundPresets: { label: string; options: { label: string; value: T
   {
     label: "Gradients",
     options: [
-      { label: "Sunrise", value: "bg-gradient-to-b from-yellow-50 via-white to-sky-50" },
-      { label: "Skyline", value: "bg-gradient-to-br from-sky-50 via-white to-blue-50" },
-      { label: "Warm glow", value: "bg-gradient-to-br from-amber-50 via-white to-orange-50" },
-      { label: "Muted glass", value: "bg-gradient-to-b from-muted/50 via-white to-muted/40" },
+      {
+        label: "Sunrise",
+        value: "bg-gradient-to-b from-yellow-50 via-white to-sky-50",
+      },
+      {
+        label: "Skyline",
+        value: "bg-gradient-to-br from-sky-50 via-white to-blue-50",
+      },
+      {
+        label: "Warm glow",
+        value: "bg-gradient-to-br from-amber-50 via-white to-orange-50",
+      },
+      {
+        label: "Muted glass",
+        value: "bg-gradient-to-b from-muted/50 via-white to-muted/40",
+      },
     ],
   },
 ];
@@ -303,7 +321,9 @@ function PropertiesPanel({
           <Input
             id="title"
             value={component.props.title ?? ""}
-            onChange={(event) => onChange({ ...component.props, title: event.target.value })}
+            onChange={(event) =>
+              onChange({ ...component.props, title: event.target.value })
+            }
             placeholder="ใส่หัวข้อ"
           />
         </div>
@@ -329,7 +349,9 @@ function PropertiesPanel({
           <Input
             id="label"
             value={component.props.label ?? ""}
-            onChange={(event) => onChange({ ...component.props, label: event.target.value })}
+            onChange={(event) =>
+              onChange({ ...component.props, label: event.target.value })
+            }
             placeholder="ข้อความบน component"
           />
         </div>
@@ -341,13 +363,17 @@ function PropertiesPanel({
           <Input
             id="navLabel"
             value={component.props.label ?? ""}
-            onChange={(event) => onChange({ ...component.props, label: event.target.value })}
+            onChange={(event) =>
+              onChange({ ...component.props, label: event.target.value })
+            }
           />
           <Label htmlFor="navHref">Href</Label>
           <Input
             id="navHref"
             value={component.props.href ?? ""}
-            onChange={(event) => onChange({ ...component.props, href: event.target.value })}
+            onChange={(event) =>
+              onChange({ ...component.props, href: event.target.value })
+            }
           />
         </div>
       )}
@@ -358,7 +384,12 @@ function PropertiesPanel({
             <Label>Variant</Label>
             <Select
               value={component.props.variant ?? "default"}
-              onValueChange={(value) => onChange({ ...component.props, variant: value })}
+              onValueChange={(value) =>
+                onChange({
+                  ...component.props,
+                  variant: value as ComponentProps["variant"],
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="เลือก variant" />
@@ -378,7 +409,12 @@ function PropertiesPanel({
             <Label>Size</Label>
             <Select
               value={(component.props as { size?: string }).size ?? "default"}
-              onValueChange={(value) => onChange({ ...component.props, size: value })}
+              onValueChange={(value) =>
+                onChange({
+                  ...component.props,
+                  size: value as ComponentProps["size"],
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="เลือก size" />
@@ -400,8 +436,15 @@ function PropertiesPanel({
         <div className="space-y-2">
           <Label>Variant</Label>
           <Select
-            value={(component.props as { variant?: string }).variant ?? "default"}
-            onValueChange={(value) => onChange({ ...component.props, variant: value })}
+            value={
+              (component.props as { variant?: string }).variant ?? "default"
+            }
+            onValueChange={(value) =>
+              onChange({
+                ...component.props,
+                variant: value as ComponentProps["variant"],
+              })
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="เลือก variant" />
@@ -421,7 +464,9 @@ function PropertiesPanel({
         <Input
           id="className"
           value={component.props.className ?? ""}
-          onChange={(event) => onChange({ ...component.props, className: event.target.value })}
+          onChange={(event) =>
+            onChange({ ...component.props, className: event.target.value })
+          }
           placeholder="เพิ่ม utility class"
         />
         <p className="text-xs text-muted-foreground">
@@ -456,7 +501,7 @@ function PropertiesPanel({
                       <span
                         className={cn(
                           "h-5 w-10 rounded border border-border text-[10px]",
-                          option.value,
+                          option.value
                         )}
                       />
                     </span>
@@ -483,12 +528,16 @@ export default function BuilderPage({
       route,
     ),
   );
-  const [selectedComponentId, setSelectedComponentId] = useState<string | undefined>(
-    canvasSchema.components[0]?.id,
+  const [selectedComponentId, setSelectedComponentId] = useState<
+    string | undefined
+  >(canvasSchema.components[0]?.id);
+  const [pendingType, setPendingType] = useState<ComponentType>(
+    componentLibrary[0].type
   );
-  const [pendingType, setPendingType] = useState<ComponentType>(componentLibrary[0].type);
   const [loadedRoute, setLoadedRoute] = useState<string | null>(null);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "success" | "error"
+  >("idle");
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const isLoading = loadedRoute !== route;
@@ -521,7 +570,7 @@ export default function BuilderPage({
   }, [route]);
 
   const selectedComponent = canvasSchema.components.find(
-    (component) => component.id === selectedComponentId,
+    (component) => component.id === selectedComponentId
   );
 
   const handleSave = async () => {
@@ -535,7 +584,7 @@ export default function BuilderPage({
       setSaveMessage(
         target === "api"
           ? "บันทึกเรียบร้อยแล้ว (backend)"
-          : "บันทึกลง local storage แล้ว",
+          : "บันทึกลง local storage แล้ว"
       );
     } catch (error) {
       console.error(error);
@@ -569,14 +618,14 @@ export default function BuilderPage({
     setCanvasSchema((prev) => ({
       ...prev,
       components: prev.components.map((component) =>
-        component.id === id ? { ...component, props } : component,
+        component.id === id ? { ...component, props } : component
       ),
     }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50">
-      <div className="mx-auto max-w-[1400px] space-y-6 px-6 py-8">
+    <div className="min-h-screen bg-linear-to-b from-zinc-50 via-white to-zinc-50">
+      <div className="mx-auto max-w-350 space-y-6 px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -585,9 +634,12 @@ export default function BuilderPage({
               <ChevronRight className="h-4 w-4" />
               <span className="font-medium text-foreground">/{route}</span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Page Builder</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Page Builder
+            </h1>
             <p className="text-sm text-muted-foreground">
-              โหลด schema เดิมถ้ามี แล้วลองลาก component จาก Library หรือกด Add เพื่อ append
+              โหลด schema เดิมถ้ามี แล้วลองลาก component จาก Library หรือกด Add
+              เพื่อ append
             </p>
           </div>
           <div className="flex flex-col items-end gap-2 text-right">
@@ -640,7 +692,9 @@ export default function BuilderPage({
                 <Sparkles className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <CardTitle className="text-base">Page background</CardTitle>
-                  <CardDescription>เลือกสีพื้นหลังหรือ gradient</CardDescription>
+                  <CardDescription>
+                    เลือกสีพื้นหลังหรือ gradient
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -651,7 +705,8 @@ export default function BuilderPage({
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {group.options.map((option) => {
-                        const isActive = canvasSchema.background === option.value;
+                        const isActive =
+                          canvasSchema.background === option.value;
 
                         return (
                           <button
@@ -659,18 +714,22 @@ export default function BuilderPage({
                             type="button"
                             className={cn(
                               "group relative rounded-lg border bg-white p-2 text-left transition hover:border-foreground/30",
-                              isActive && "border-foreground shadow-sm",
+                              isActive && "border-foreground shadow-sm"
                             )}
                             onClick={() => updateBackground(option.value)}
                           >
                             <div
                               className={cn(
                                 "h-14 w-full rounded-md border border-border text-xs",
-                                option.value,
+                                option.value
                               )}
                             />
-                            <div className="mt-2 text-sm font-medium text-foreground">{option.label}</div>
-                            <div className="text-[11px] text-muted-foreground">{option.value}</div>
+                            <div className="mt-2 text-sm font-medium text-foreground">
+                              {option.label}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">
+                              {option.value}
+                            </div>
                           </button>
                         );
                       })}
@@ -694,7 +753,9 @@ export default function BuilderPage({
                 <CirclePlus className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <CardTitle className="text-base">Component Library</CardTitle>
-                  <CardDescription>ลาก component เพื่อวางบน Canvas</CardDescription>
+                  <CardDescription>
+                    ลาก component เพื่อวางบน Canvas
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -718,11 +779,16 @@ export default function BuilderPage({
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{item.label}</span>
-                        <Badge variant="secondary" className="rounded-full text-[10px]">
+                        <Badge
+                          variant="secondary"
+                          className="rounded-full text-[10px]"
+                        >
                           drag
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.description}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -734,13 +800,18 @@ export default function BuilderPage({
                 <Palette className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <CardTitle className="text-base">Properties</CardTitle>
-                  <CardDescription>แก้ไข props ของ component ที่เลือก</CardDescription>
+                  <CardDescription>
+                    แก้ไข props ของ component ที่เลือก
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 <PropertiesPanel
                   component={selectedComponent}
-                  onChange={(props) => selectedComponent && updateComponent(selectedComponent.id, props)}
+                  onChange={(props) =>
+                    selectedComponent &&
+                    updateComponent(selectedComponent.id, props)
+                  }
                 />
               </CardContent>
             </Card>
@@ -749,8 +820,12 @@ export default function BuilderPage({
               <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-4">
                 <ComponentIcon className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <CardTitle className="text-base">Supported UI Components</CardTitle>
-                  <CardDescription>default props และ className จาก design system</CardDescription>
+                  <CardTitle className="text-base">
+                    Supported UI Components
+                  </CardTitle>
+                  <CardDescription>
+                    default props และ className จาก design system
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -761,21 +836,34 @@ export default function BuilderPage({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
-                        <div className="font-medium text-foreground">{component.name}</div>
-                        <p className="text-xs text-muted-foreground">{component.description}</p>
+                        <div className="font-medium text-foreground">
+                          {component.name}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {component.description}
+                        </p>
                       </div>
-                      <Badge variant="secondary" className="rounded-full text-[10px]">
+                      <Badge
+                        variant="secondary"
+                        className="rounded-full text-[10px]"
+                      >
                         className
                       </Badge>
                     </div>
 
                     {component.defaultProps && (
                       <div className="flex flex-wrap gap-2 text-[11px]">
-                        {Object.entries(component.defaultProps).map(([key, value]) => (
-                          <Badge key={key} variant="outline" className="rounded-full">
-                            {key}: {value}
-                          </Badge>
-                        ))}
+                        {Object.entries(component.defaultProps).map(
+                          ([key, value]) => (
+                            <Badge
+                              key={key}
+                              variant="outline"
+                              className="rounded-full"
+                            >
+                              {key}: {value}
+                            </Badge>
+                          )
+                        )}
                       </div>
                     )}
 
@@ -807,8 +895,13 @@ export default function BuilderPage({
                       Canvas Preview
                     </div>
                     <div className="flex items-center gap-2">
-                      <Select value={pendingType} onValueChange={(value) => setPendingType(value as ComponentType)}>
-                        <SelectTrigger className="w-[180px]">
+                      <Select
+                        value={pendingType}
+                        onValueChange={(value) =>
+                          setPendingType(value as ComponentType)
+                        }
+                      >
+                        <SelectTrigger className="w-45">
                           <SelectValue placeholder="เลือก component" />
                         </SelectTrigger>
                         <SelectContent>
@@ -829,8 +922,8 @@ export default function BuilderPage({
                   <CardContent>
                     <div
                       className={cn(
-                        "flex min-h-[460px] flex-col gap-4 rounded-xl border border-dashed p-4",
-                        canvasSchema.background ?? "bg-muted/30",
+                        "flex min-h-115 flex-col gap-4 rounded-xl border border-dashed p-4",
+                        canvasSchema.background ?? "bg-muted/30"
                       )}
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={handleDrop}
@@ -864,7 +957,12 @@ export default function BuilderPage({
                               <Blocks className="h-4 w-4" />
                               {component.type}
                             </div>
-                            <Badge variant="outline">{component.props.className ? "custom" : "default"}</Badge>
+                            <Badge variant="outline">
+                              {component.props.className ? "custom" : "default"}
+                            </Badge>
+                          </div>
+                          <div className="space-y-2">
+                            {renderComponent(component)}
                           </div>
                           <div className="space-y-2">{renderComponent(component)}</div>
                         </div>

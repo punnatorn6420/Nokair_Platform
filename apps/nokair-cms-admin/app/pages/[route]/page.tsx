@@ -63,14 +63,17 @@ export default function PublishedRoutePage({
   }, [route]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-muted/30 via-white to-muted/20 py-10">
+    <div className="min-h-screen bg-linear-to-b from-muted/30 via-white to-muted/20 py-10">
       <div className="mx-auto max-w-5xl space-y-6 px-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Published route</p>
             <h1 className="text-2xl font-semibold tracking-tight">/{route}</h1>
           </div>
-          <Badge variant={isLoading ? "outline" : "secondary"} className="rounded-full">
+          <Badge
+            variant={isLoading ? "outline" : "secondary"}
+            className="rounded-full"
+          >
             {isLoading ? "กำลังโหลด schema" : "Renderer ready"}
           </Badge>
         </div>
