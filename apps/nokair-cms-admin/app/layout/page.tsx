@@ -63,6 +63,7 @@ function SectionEditor({
   const [parseError, setParseError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setContentDraft(JSON.stringify(section.content, null, 2));
   }, [section.content]);
 
