@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
 
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -14,12 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,7 +23,19 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TailwindClassName } from "@/lib/page-schema";
+import { renderComponent } from "@/components/page-renderer";
+import {
+  ComponentInstance,
+  ComponentProps,
+  ComponentType,
+  PageSchema,
+  TailwindClassName,
+  cloneSchema,
+  createDefaultSchema,
+  ensureSchemaRoute,
+  presetSchemas,
+} from "@/lib/page-schema";
+import { loadPageSchema, persistPageSchema } from "@/lib/schema-storage";
 import { cn } from "@/lib/utils";
 import {
   Blocks,
@@ -42,30 +49,6 @@ import {
   Palette,
   Sparkles,
 } from "lucide-react";
-
-type ComponentType = "hero" | "card" | "button" | "badge" | "navigation";
-
-type ComponentProps = {
-  title?: string;
-  description?: string;
-  label?: string;
-  href?: string;
-  variant?: string;
-  size?: string;
-  className?: string;
-};
-
-type ComponentInstance = {
-  id: string;
-  type: ComponentType;
-  props: ComponentProps;
-};
-
-type BuilderSchema = {
-  layout: "stack" | "section";
-  background?: TailwindClassName;
-  components: ComponentInstance[];
-};
 
 type ComponentLibraryItem = {
   type: ComponentType;
@@ -248,38 +231,6 @@ const componentLibrary: ComponentLibraryItem[] = [
   },
 ];
 
-const presetSchemas: Record<string, BuilderSchema> = {
-  homepage: {
-    layout: "stack",
-    background: "bg-gradient-to-br from-yellow-50 via-white to-sky-50",
-    components: [
-      {
-        id: "hero-1",
-        type: "hero",
-        props: {
-          title: "จัดการเลย์เอาต์ Nok Air",
-          description: "โหลด schema เดิมแล้วลาก component เพื่อจัดหน้าได้เลย",
-          label: "บันทึกสคีมา",
-          className: "bg-yellow-50",
-        },
-      },
-      {
-        id: "card-1",
-        type: "card",
-        props: {
-          title: "Promo Block",
-          description: "ใช้การ์ดเพื่อจัดเรียง content สั้น ๆ",
-          className: "",
-        },
-      },
-    ],
-  },
-};
-
-function cloneSchema(schema: BuilderSchema): BuilderSchema {
-  return JSON.parse(JSON.stringify(schema));
-}
-
 function mergeClassNames(base: string | undefined, additions: string) {
   const existing = base?.split(/\s+/).filter(Boolean) ?? [];
   const incoming = additions.split(/\s+/).filter(Boolean);
@@ -303,18 +254,6 @@ function createInstance(type: ComponentType): ComponentInstance {
   };
 }
 
-function useSchema(route: string): BuilderSchema {
-  return useMemo(() => {
-    const preset = presetSchemas[route];
-    if (preset) return cloneSchema(preset);
-    return {
-      layout: "stack",
-      background: "bg-muted/30",
-      components: [createInstance("hero")],
-    } satisfies BuilderSchema;
-  }, [route]);
-}
-
 const pageBackgroundPresets: { label: string; options: { label: string; value: TailwindClassName }[] }[] = [
   {
     label: "Tailwind colors",
@@ -335,130 +274,6 @@ const pageBackgroundPresets: { label: string; options: { label: string; value: T
     ],
   },
 ];
-
-function HeroPreview({ component }: { component: ComponentInstance }) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-dashed border-yellow-200 bg-white",
-        component.props.className,
-      )}
-    >
-      <div className="relative space-y-3 p-8">
-        <Badge variant="outline" className="rounded-full border-yellow-300 text-yellow-800">
-          {component.props.label ?? "Hero"}
-        </Badge>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {component.props.title ?? "Hero Title"}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {component.props.description ?? "Hero description"}
-        </p>
-        <div className="flex items-center gap-2 pt-2">
-          <Button size="sm">CTA</Button>
-          <Button size="sm" variant="outline">
-            Secondary
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CardPreview({ component }: { component: ComponentInstance }) {
-  return (
-    <Card className={cn("border-dashed shadow-none", component.props.className)}>
-      <CardHeader>
-        <CardTitle>{component.props.title ?? "Card"}</CardTitle>
-        <CardDescription>
-          {component.props.description ?? "รายละเอียดของการ์ด"}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2">
-          <Badge variant="secondary">Info</Badge>
-          <Badge variant="outline">Tag</Badge>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ButtonPreview({ component }: { component: ComponentInstance }) {
-  return (
-    <Button
-      variant={component.props.variant as
-        | "default"
-        | "outline"
-        | "secondary"
-        | "destructive"
-        | "ghost"
-        | "link"}
-      size={(component.props as { size?: string }).size as
-        | "default"
-        | "sm"
-        | "lg"
-        | "icon"
-        | "icon-sm"
-        | "icon-lg"}
-      className={component.props.className}
-    >
-      {component.props.label ?? "Button"}
-    </Button>
-  );
-}
-
-function BadgePreview({ component }: { component: ComponentInstance }) {
-  return (
-    <Badge
-      variant={(component.props as { variant?: string }).variant as
-        | "default"
-        | "secondary"
-        | "outline"
-        | "destructive"}
-      className={cn(component.props.className)}
-    >
-      {component.props.label ?? "Badge"}
-    </Badge>
-  );
-}
-
-function NavigationPreview({ component }: { component: ComponentInstance }) {
-  return (
-    <NavigationMenu className={cn("justify-start", component.props.className)}>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuLink href={component.props.href ?? "#"}>
-            {component.props.label ?? "เมนูหลัก"}
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink href="#">Feature</NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink href="#">Docs</NavigationMenuLink>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
-  );
-}
-
-function renderComponent(component: ComponentInstance) {
-  switch (component.type) {
-    case "hero":
-      return <HeroPreview component={component} />;
-    case "card":
-      return <CardPreview component={component} />;
-    case "button":
-      return <ButtonPreview component={component} />;
-    case "badge":
-      return <BadgePreview component={component} />;
-    case "navigation":
-      return <NavigationPreview component={component} />;
-    default:
-      return null;
-  }
-}
 
 function PropertiesPanel({
   component,
@@ -657,16 +472,72 @@ function PropertiesPanel({
 }
 
 export default function BuilderPage({ params }: { params: { route: string } }) {
-  const schema = useSchema(params.route);
-  const [canvasSchema, setCanvasSchema] = useState<BuilderSchema>(schema);
+  const [canvasSchema, setCanvasSchema] = useState<PageSchema>(() =>
+    ensureSchemaRoute(
+      cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
+      params.route,
+    ),
+  );
   const [selectedComponentId, setSelectedComponentId] = useState<string | undefined>(
     canvasSchema.components[0]?.id,
   );
   const [pendingType, setPendingType] = useState<ComponentType>(componentLibrary[0].type);
+  const [loadedRoute, setLoadedRoute] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const isLoading = loadedRoute !== params.route;
+
+  useEffect(() => {
+    let mounted = true;
+    loadPageSchema(params.route)
+      .then((storedSchema) => {
+        if (!mounted) return;
+
+        const fallback = ensureSchemaRoute(
+          cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
+          params.route,
+        );
+
+        const normalized = storedSchema
+          ? ensureSchemaRoute(storedSchema, params.route)
+          : fallback;
+
+        setCanvasSchema(normalized);
+        setSelectedComponentId(normalized.components[0]?.id);
+      })
+      .finally(() => {
+        if (mounted) setLoadedRoute(params.route);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [params.route]);
 
   const selectedComponent = canvasSchema.components.find(
     (component) => component.id === selectedComponentId,
   );
+
+  const handleSave = async () => {
+    setSaveState("saving");
+    setSaveMessage(null);
+
+    try {
+      const schemaToSave = ensureSchemaRoute(canvasSchema, params.route);
+      const target = await persistPageSchema(params.route, schemaToSave);
+      setSaveState("success");
+      setSaveMessage(
+        target === "api"
+          ? "บันทึกเรียบร้อยแล้ว (backend)"
+          : "บันทึกลง local storage แล้ว",
+      );
+    } catch (error) {
+      console.error(error);
+      setSaveState("error");
+      setSaveMessage("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง");
+    }
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -714,13 +585,46 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
               โหลด schema เดิมถ้ามี แล้วลองลาก component จาก Library หรือกด Add เพื่อ append
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-full">
-              Layout: {schema.layout}
-            </Badge>
-            <Button variant="outline" size="sm">
-              บันทึกสคีมา
-            </Button>
+          <div className="flex flex-col items-end gap-2 text-right">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Badge variant="secondary" className="rounded-full">
+                Layout: {canvasSchema.layout}
+              </Badge>
+              {isLoading && (
+                <Badge variant="outline" className="rounded-full">
+                  กำลังโหลด schema...
+                </Badge>
+              )}
+              {saveMessage && (
+                <Badge
+                  variant={saveState === "error" ? "destructive" : "outline"}
+                  className="rounded-full"
+                >
+                  {saveMessage}
+                </Badge>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSave}
+                disabled={isLoading || saveState === "saving"}
+              >
+                {saveState === "saving" ? "กำลังบันทึก..." : "บันทึกสคีมา"}
+              </Button>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href={`/pages/${params.route}`} target="_blank" rel="noreferrer">
+                  Preview
+                </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href={`/pages/${params.route}`} target="_blank" rel="noreferrer">
+                  Publish
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
