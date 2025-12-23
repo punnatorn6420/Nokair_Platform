@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TailwindClassName } from "@/lib/page-schema";
 import { cn } from "@/lib/utils";
 import {
   Blocks,
@@ -62,6 +63,7 @@ type ComponentInstance = {
 
 type BuilderSchema = {
   layout: "stack" | "section";
+  background?: TailwindClassName;
   components: ComponentInstance[];
 };
 
@@ -249,6 +251,7 @@ const componentLibrary: ComponentLibraryItem[] = [
 const presetSchemas: Record<string, BuilderSchema> = {
   homepage: {
     layout: "stack",
+    background: "bg-gradient-to-br from-yellow-50 via-white to-sky-50",
     components: [
       {
         id: "hero-1",
@@ -306,10 +309,32 @@ function useSchema(route: string): BuilderSchema {
     if (preset) return cloneSchema(preset);
     return {
       layout: "stack",
+      background: "bg-muted/30",
       components: [createInstance("hero")],
     } satisfies BuilderSchema;
   }, [route]);
 }
+
+const pageBackgroundPresets: { label: string; options: { label: string; value: TailwindClassName }[] }[] = [
+  {
+    label: "Tailwind colors",
+    options: [
+      { label: "Muted", value: "bg-muted/30" },
+      { label: "White", value: "bg-white" },
+      { label: "Slate 50", value: "bg-slate-50" },
+      { label: "Zinc 100", value: "bg-zinc-100" },
+    ],
+  },
+  {
+    label: "Gradients",
+    options: [
+      { label: "Sunrise", value: "bg-gradient-to-b from-yellow-50 via-white to-sky-50" },
+      { label: "Skyline", value: "bg-gradient-to-br from-sky-50 via-white to-blue-50" },
+      { label: "Warm glow", value: "bg-gradient-to-br from-amber-50 via-white to-orange-50" },
+      { label: "Muted glass", value: "bg-gradient-to-b from-muted/50 via-white to-muted/40" },
+    ],
+  },
+];
 
 function HeroPreview({ component }: { component: ComponentInstance }) {
   return (
@@ -657,6 +682,13 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
     }));
   };
 
+  const updateBackground = (value?: TailwindClassName) => {
+    setCanvasSchema((prev) => ({
+      ...prev,
+      background: value,
+    }));
+  };
+
   const updateComponent = (id: string, props: ComponentProps) => {
     setCanvasSchema((prev) => ({
       ...prev,
@@ -694,6 +726,60 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
           <div className="space-y-4">
+            <Card className="border-dashed">
+              <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-4">
+                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <CardTitle className="text-base">Page background</CardTitle>
+                  <CardDescription>เลือกสีพื้นหลังหรือ gradient</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {pageBackgroundPresets.map((group) => (
+                  <div key={group.label} className="space-y-2">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.label}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {group.options.map((option) => {
+                        const isActive = canvasSchema.background === option.value;
+
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={cn(
+                              "group relative rounded-lg border bg-white p-2 text-left transition hover:border-foreground/30",
+                              isActive && "border-foreground shadow-sm",
+                            )}
+                            onClick={() => updateBackground(option.value)}
+                          >
+                            <div
+                              className={cn(
+                                "h-14 w-full rounded-md border border-border text-xs",
+                                option.value,
+                              )}
+                            />
+                            <div className="mt-2 text-sm font-medium text-foreground">{option.label}</div>
+                            <div className="text-[11px] text-muted-foreground">{option.value}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => updateBackground(undefined)}
+                >
+                  ล้างค่า background
+                </Button>
+              </CardContent>
+            </Card>
+
             <Card className="border-dashed">
               <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-4">
                 <CirclePlus className="h-4 w-4 text-muted-foreground" />
@@ -833,7 +919,10 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                   <Separator />
                   <CardContent>
                     <div
-                      className="flex min-h-[460px] flex-col gap-4 rounded-xl border border-dashed bg-muted/30 p-4"
+                      className={cn(
+                        "flex min-h-[460px] flex-col gap-4 rounded-xl border border-dashed p-4",
+                        canvasSchema.background ?? "bg-muted/30",
+                      )}
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={handleDrop}
                     >
