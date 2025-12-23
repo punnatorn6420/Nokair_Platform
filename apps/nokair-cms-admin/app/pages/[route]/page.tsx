@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 import { PageRenderer } from "@/components/page-renderer";
 import { Badge } from "@/components/ui/badge";
@@ -23,43 +23,44 @@ import { loadPageSchema } from "@/lib/schema-storage";
 export default function PublishedRoutePage({
   params,
 }: {
-  params: { route: string };
+  params: Promise<{ route: string }>;
 }) {
+  const { route } = use(params);
   const [schema, setSchema] = useState<PageSchema>(() =>
     ensureSchemaRoute(
-      cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
-      params.route,
+      cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
+      route,
     ),
   );
   const [loadedRoute, setLoadedRoute] = useState<string | null>(null);
 
-  const isLoading = loadedRoute !== params.route;
+  const isLoading = loadedRoute !== route;
 
   useEffect(() => {
     let mounted = true;
 
-    loadPageSchema(params.route)
+    loadPageSchema(route)
       .then((storedSchema) => {
         if (!mounted) return;
         const fallback = ensureSchemaRoute(
-          cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
-          params.route,
+          cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
+          route,
         );
 
         const normalized = storedSchema
-          ? ensureSchemaRoute(storedSchema, params.route)
+          ? ensureSchemaRoute(storedSchema, route)
           : fallback;
 
         setSchema(normalized);
       })
       .finally(() => {
-        if (mounted) setLoadedRoute(params.route);
+        if (mounted) setLoadedRoute(route);
       });
 
     return () => {
       mounted = false;
     };
-  }, [params.route]);
+  }, [route]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/30 via-white to-muted/20 py-10">
@@ -67,7 +68,7 @@ export default function PublishedRoutePage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Published route</p>
-            <h1 className="text-2xl font-semibold tracking-tight">/{params.route}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">/{route}</h1>
           </div>
           <Badge variant={isLoading ? "outline" : "secondary"} className="rounded-full">
             {isLoading ? "กำลังโหลด schema" : "Renderer ready"}

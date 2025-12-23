@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, use } from "react";
 
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -471,11 +471,16 @@ function PropertiesPanel({
   );
 }
 
-export default function BuilderPage({ params }: { params: { route: string } }) {
+export default function BuilderPage({
+  params,
+}: {
+  params: Promise<{ route: string }>;
+}) {
+  const { route } = use(params);
   const [canvasSchema, setCanvasSchema] = useState<PageSchema>(() =>
     ensureSchemaRoute(
-      cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
-      params.route,
+      cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
+      route,
     ),
   );
   const [selectedComponentId, setSelectedComponentId] = useState<string | undefined>(
@@ -486,34 +491,34 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  const isLoading = loadedRoute !== params.route;
+  const isLoading = loadedRoute !== route;
 
   useEffect(() => {
     let mounted = true;
-    loadPageSchema(params.route)
+    loadPageSchema(route)
       .then((storedSchema) => {
         if (!mounted) return;
 
         const fallback = ensureSchemaRoute(
-          cloneSchema(presetSchemas[params.route] ?? createDefaultSchema(params.route)),
-          params.route,
+          cloneSchema(presetSchemas[route] ?? createDefaultSchema(route)),
+          route,
         );
 
         const normalized = storedSchema
-          ? ensureSchemaRoute(storedSchema, params.route)
+          ? ensureSchemaRoute(storedSchema, route)
           : fallback;
 
         setCanvasSchema(normalized);
         setSelectedComponentId(normalized.components[0]?.id);
       })
       .finally(() => {
-        if (mounted) setLoadedRoute(params.route);
+        if (mounted) setLoadedRoute(route);
       });
 
     return () => {
       mounted = false;
     };
-  }, [params.route]);
+  }, [route]);
 
   const selectedComponent = canvasSchema.components.find(
     (component) => component.id === selectedComponentId,
@@ -524,8 +529,8 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
     setSaveMessage(null);
 
     try {
-      const schemaToSave = ensureSchemaRoute(canvasSchema, params.route);
-      const target = await persistPageSchema(params.route, schemaToSave);
+      const schemaToSave = ensureSchemaRoute(canvasSchema, route);
+      const target = await persistPageSchema(route, schemaToSave);
       setSaveState("success");
       setSaveMessage(
         target === "api"
@@ -578,7 +583,7 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
               <Palette className="h-4 w-4" />
               Builder
               <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">/{params.route}</span>
+              <span className="font-medium text-foreground">/{route}</span>
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Page Builder</h1>
             <p className="text-sm text-muted-foreground">
@@ -615,12 +620,12 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                 {saveState === "saving" ? "กำลังบันทึก..." : "บันทึกสคีมา"}
               </Button>
               <Button variant="secondary" size="sm" asChild>
-                <Link href={`/pages/${params.route}`} target="_blank" rel="noreferrer">
+                <Link href={`/pages/${route}`} target="_blank" rel="noreferrer">
                   Preview
                 </Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href={`/pages/${params.route}`} target="_blank" rel="noreferrer">
+                <Link href={`/pages/${route}`} target="_blank" rel="noreferrer">
                   Publish
                 </Link>
               </Button>
@@ -838,14 +843,21 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                       )}
 
                       {canvasSchema.components.map((component) => (
-                        <button
+                        <div
                           key={component.id}
-                          type="button"
+                          role="button"
+                          tabIndex={0}
                           className={cn(
-                            "relative w-full rounded-xl border bg-white p-3 text-left shadow-sm transition hover:border-yellow-400",
+                            "relative w-full rounded-xl border bg-white p-3 text-left shadow-sm transition hover:border-yellow-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400",
                             selectedComponentId === component.id && "border-yellow-500 ring-2 ring-yellow-200",
                           )}
                           onClick={() => setSelectedComponentId(component.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setSelectedComponentId(component.id);
+                            }
+                          }}
                         >
                           <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
@@ -855,7 +867,7 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                             <Badge variant="outline">{component.props.className ? "custom" : "default"}</Badge>
                           </div>
                           <div className="space-y-2">{renderComponent(component)}</div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   </CardContent>
@@ -867,7 +879,7 @@ export default function BuilderPage({ params }: { params: { route: string } }) {
                   <CardHeader>
                     <CardTitle className="text-base">Loaded Schema</CardTitle>
                     <CardDescription>
-                      schema ถูกโหลดตาม route param: <span className="font-semibold">{params.route}</span>
+                      schema ถูกโหลดตาม route param: <span className="font-semibold">{route}</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
