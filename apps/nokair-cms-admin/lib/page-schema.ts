@@ -7,7 +7,13 @@ export type ComponentProps = {
   description?: string;
   label?: string;
   href?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
   size?: "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg";
   className?: string;
 };
@@ -49,7 +55,10 @@ export function createDefaultSchema(route: string): PageSchema {
   } satisfies PageSchema;
 }
 
-export function ensureSchemaRoute(schema: PageSchema, route: string): PageSchema {
+export function ensureSchemaRoute(
+  schema: PageSchema,
+  route: string
+): PageSchema {
   return {
     ...schema,
     route,

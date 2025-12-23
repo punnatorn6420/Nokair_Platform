@@ -34,7 +34,11 @@ const sectionTemplates: Record<string, () => SectionBlock> = {
       title: "โปรโมชั่น",
       description: "คำอธิบาย",
       items: [
-        { title: "ตัวอย่าง", description: "รายละเอียดโปรโมชั่น", badge: "ใหม่" },
+        {
+          title: "ตัวอย่าง",
+          description: "รายละเอียดโปรโมชั่น",
+          badge: "ใหม่",
+        },
       ],
     },
   }),

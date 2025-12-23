@@ -18,14 +18,23 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import type { ComponentInstance, ComponentProps, PageSchema } from "@/lib/page-schema";
+import type {
+  ComponentInstance,
+  ComponentProps,
+  PageSchema,
+} from "@/lib/page-schema";
 
 type BadgeVariant = "default" | "secondary" | "outline" | "destructive";
 
 function toBadgeVariant(variant?: ComponentProps["variant"]): BadgeVariant {
-  const allowed: BadgeVariant[] = ["default", "secondary", "outline", "destructive"];
+  const allowed: BadgeVariant[] = [
+    "default",
+    "secondary",
+    "outline",
+    "destructive",
+  ];
   return allowed.includes((variant as BadgeVariant) ?? "default")
-    ? ((variant as BadgeVariant) ?? "default")
+    ? (variant as BadgeVariant) ?? "default"
     : "default";
 }
 
@@ -34,11 +43,14 @@ function HeroPreview({ component }: { component: ComponentInstance }) {
     <div
       className={cn(
         "relative overflow-hidden rounded-2xl border border-dashed border-yellow-200 bg-white",
-        component.props.className,
+        component.props.className
       )}
     >
       <div className="relative space-y-3 p-8">
-        <Badge variant="outline" className="rounded-full border-yellow-300 text-yellow-800">
+        <Badge
+          variant="outline"
+          className="rounded-full border-yellow-300 text-yellow-800"
+        >
           {component.props.label ?? "Hero"}
         </Badge>
         <h2 className="text-2xl font-semibold tracking-tight">
@@ -60,7 +72,9 @@ function HeroPreview({ component }: { component: ComponentInstance }) {
 
 function CardPreview({ component }: { component: ComponentInstance }) {
   return (
-    <Card className={cn("border-dashed shadow-none", component.props.className)}>
+    <Card
+      className={cn("border-dashed shadow-none", component.props.className)}
+    >
       <CardHeader>
         <CardTitle>{component.props.title ?? "Card"}</CardTitle>
         <CardDescription>
@@ -139,8 +153,8 @@ export function PageRenderer({ schema }: { schema: PageSchema }) {
   return (
     <div
       className={cn(
-        "flex min-h-[460px] flex-col gap-4 rounded-xl border border-dashed p-4",
-        schema.background ?? "bg-muted/30",
+        "flex min-h-115 flex-col gap-4 rounded-xl border border-dashed p-4",
+        schema.background ?? "bg-muted/30"
       )}
     >
       {schema.components.length === 0 ? (
@@ -155,9 +169,13 @@ export function PageRenderer({ schema }: { schema: PageSchema }) {
           >
             <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] uppercase tracking-wide">{component.type}</span>
+                <span className="font-mono text-[11px] uppercase tracking-wide">
+                  {component.type}
+                </span>
               </div>
-              <Badge variant="outline">{component.props.className ? "custom" : "default"}</Badge>
+              <Badge variant="outline">
+                {component.props.className ? "custom" : "default"}
+              </Badge>
             </div>
             <div className="space-y-2">{renderComponent(component)}</div>
           </div>
